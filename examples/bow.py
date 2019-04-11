@@ -13,6 +13,9 @@ import io
 import numpy as np
 import logging
 
+from warnings import simplefilter
+# ignore all future warnings
+simplefilter(action='ignore', category=FutureWarning)
 
 # Set PATHs
 PATH_TO_SENTEVAL = '../'
@@ -102,7 +105,7 @@ params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 12
                                  'tenacity': 3, 'epoch_size': 2}
 
 # Set up logger
-logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.INFO)
 
 if __name__ == "__main__":
     se = senteval.engine.SE(params_senteval, batcher, prepare)
