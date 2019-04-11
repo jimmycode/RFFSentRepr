@@ -6,6 +6,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+**/.mypy_cache/
 
 # log files
 *.log
@@ -13,3 +14,18 @@ __pycache__/
 
 # data files
 data/senteval_data*
+
+# data
+data/downstream/COCO/
+data/downstream/CR/
+data/downstream/MPQA/
+data/downstream/MR/
+data/downstream/SNLI/
+data/downstream/SST/
+data/downstream/STS/
+data/downstream/SUBJ/
+data/downstream/TREC/
+
+
+# Word embeddings and parameters
+examples/fasttext/
