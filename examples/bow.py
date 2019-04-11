@@ -6,6 +6,7 @@
 #
 
 from __future__ import absolute_import, division, unicode_literals
+import senteval
 
 import sys
 import io
@@ -21,7 +22,6 @@ PATH_TO_VEC = 'fasttext/crawl-300d-2M.vec'
 
 # import SentEval
 sys.path.insert(0, PATH_TO_SENTEVAL)
-import senteval
 
 
 # Create dictionary
@@ -51,6 +51,8 @@ def create_dictionary(sentences, threshold=0):
     return id2word, word2id
 
 # Get word vectors from vocabulary (glove, word2vec, fasttext ..)
+
+
 def get_wordvec(path_to_vec, word2id):
     word_vec = {}
 
@@ -73,6 +75,7 @@ def prepare(params, samples):
     params.wvec_dim = 300
     return
 
+
 def batcher(params, batch):
     batch = [sent if sent != [] else ['.'] for sent in batch]
     embeddings = []
@@ -93,7 +96,8 @@ def batcher(params, batch):
 
 
 # Set params for SentEval
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
+# params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
+params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': False, 'kfold': 5}
 params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                  'tenacity': 3, 'epoch_size': 2}
 
@@ -102,8 +106,8 @@ logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)
 
 if __name__ == "__main__":
     se = senteval.engine.SE(params_senteval, batcher, prepare)
-    transfer_tasks = ['STS12', 'STS13', 'STS14', 'STS15', 'STS16',
-                      'MR', 'CR', 'MPQA', 'SUBJ', 'SST2', 'SST5', 'TREC', 'MRPC',
+    # transfer_tasks = ['STS12', 'STS13', 'STS14', 'STS15', 'STS16',
+    transfer_tasks = ['MR', 'CR', 'MPQA', 'SUBJ', 'SST2', 'SST5', 'TREC', 'MRPC',
                       'SICKEntailment', 'SICKRelatedness', 'STSBenchmark',
                       'Length', 'WordContent', 'Depth', 'TopConstituents',
                       'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
