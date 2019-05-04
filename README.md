@@ -64,9 +64,11 @@ SentEval also includes a series of [*probing* tasks](https://github.com/facebook
 ## Download datasets
 To get all the transfer tasks datasets, run (in data/downstream/):
 ```bash
-./get_transfer_data.bash
+bash get_transfer_data.bash
 ```
 This will automatically download and preprocess the downstream datasets, and store them in data/downstream (warning: for MacOS users, you may have to use p7zip instead of unzip). The probing tasks are already in data/probing by default.
+
+*Notice*: ensure that bash version is contemporary (tested on v5.0.7). Check the error messages to make sure the datasets are properly processed.
 
 ## How to use SentEval: examples
 
