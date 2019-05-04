@@ -126,7 +126,7 @@ do
 done
 
 
-
+export LANG=C
 
 ### download TREC
 mkdir $data_path/TREC
