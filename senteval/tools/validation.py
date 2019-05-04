@@ -5,6 +5,9 @@
 # LICENSE file in the root directory of this source tree.
 #
 
+from __future__ import absolute_import, division, unicode_literals
+from sklearn.model_selection import StratifiedKFold
+from sklearn.linear_model import LogisticRegression
 """
 Validation and classification
 (train)            :  inner-kfold classifier
@@ -12,7 +15,6 @@ Validation and classification
 (train, dev, test) :  split classifier
 
 """
-from __future__ import absolute_import, division, unicode_literals
 
 import logging
 import numpy as np
@@ -21,8 +23,17 @@ from senteval.tools.classifier import MLP
 import sklearn
 assert(sklearn.__version__ >= "0.18.0"), \
     "need to update sklearn to version >= 0.18.0"
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold
+
+
+def regs_range(usepytorch: bool):
+    regs = [10**t for t in range(-10, -1)] if usepytorch else \
+        [2 ** t for t in range(-20, 8, 2)]
+
+    # Old version:
+    # regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
+    #         [2**t for t in range(-?, ?, 1)]
+
+    return regs
 
 
 def get_classif_name(classifier_config, usepytorch):
@@ -36,10 +47,13 @@ def get_classif_name(classifier_config, usepytorch):
     return modelname
 
 # Pytorch version
+
+
 class InnerKFoldClassifier(object):
     """
     (train) split classifier : InnerKfold.
     """
+
     def __init__(self, X, y, config):
         self.X = X
         self.y = y
@@ -50,7 +64,8 @@ class InnerKFoldClassifier(object):
         self.testresults = []
         self.usepytorch = config['usepytorch']
         self.classifier_config = config['classifier']
-        self.modelname = get_classif_name(self.classifier_config, self.usepytorch)
+        self.modelname = get_classif_name(
+            self.classifier_config, self.usepytorch)
 
         self.k = 5 if 'kfold' not in config else config['kfold']
 
@@ -58,8 +73,10 @@ class InnerKFoldClassifier(object):
         logging.info('Training {0} with (inner) {1}-fold cross-validation'
                      .format(self.modelname, self.k))
 
-        regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
-               [2**t for t in range(-2, 4, 1)]
+        regs = regs_range(self.usepytorch)
+        # regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
+        #        [2**t for t in range(-2, 4, 2)]
+
         skf = StratifiedKFold(n_splits=self.k, shuffle=True, random_state=1111)
         innerskf = StratifiedKFold(n_splits=self.k, shuffle=True,
                                    random_state=1111)
@@ -111,6 +128,7 @@ class KFoldClassifier(object):
     """
     (train, test) split classifier : cross-validation on train.
     """
+
     def __init__(self, train, test, config):
         self.train = train
         self.test = test
@@ -119,7 +137,8 @@ class KFoldClassifier(object):
         self.seed = config['seed']
         self.usepytorch = config['usepytorch']
         self.classifier_config = config['classifier']
-        self.modelname = get_classif_name(self.classifier_config, self.usepytorch)
+        self.modelname = get_classif_name(
+            self.classifier_config, self.usepytorch)
 
         self.k = 5 if 'kfold' not in config else config['kfold']
 
@@ -127,8 +146,11 @@ class KFoldClassifier(object):
         # cross-validation
         logging.info('Training {0} with {1}-fold cross-validation'
                      .format(self.modelname, self.k))
-        regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
-               [2**t for t in range(-1, 6, 1)]
+
+        regs = regs_range(self.usepytorch)
+        # regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
+        #        [2**t for t in range(-1, 6, 1)]
+
         skf = StratifiedKFold(n_splits=self.k, shuffle=True,
                               random_state=self.seed)
         scores = []
@@ -185,6 +207,7 @@ class SplitClassifier(object):
     """
     (train, valid, test) split classifier.
     """
+
     def __init__(self, X, y, config):
         self.X = X
         self.y = y
@@ -195,15 +218,19 @@ class SplitClassifier(object):
         self.classifier_config = config['classifier']
         self.cudaEfficient = False if 'cudaEfficient' not in config else \
             config['cudaEfficient']
-        self.modelname = get_classif_name(self.classifier_config, self.usepytorch)
+        self.modelname = get_classif_name(
+            self.classifier_config, self.usepytorch)
         self.noreg = False if 'noreg' not in config else config['noreg']
         self.config = config
 
     def run(self):
         logging.info('Training {0} with standard validation..'
                      .format(self.modelname))
-        regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
-               [2**t for t in range(-2, 4, 1)]
+
+        regs = regs_range(self.usepytorch)
+        # regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
+        #        [2**t for t in range(-2, 4, 1)]
+
         if self.noreg:
             regs = [1e-9 if self.usepytorch else 1e9]
         scores = []
@@ -220,7 +247,7 @@ class SplitClassifier(object):
                 clf = LogisticRegression(C=reg, random_state=self.seed)
                 clf.fit(self.X['train'], self.y['train'])
             scores.append(round(100*clf.score(self.X['valid'],
-                                self.y['valid']), 2))
+                                              self.y['valid']), 2))
         logging.info([('reg:'+str(regs[idx]), scores[idx])
                       for idx in range(len(scores))])
         optreg = regs[np.argmax(scores)]
