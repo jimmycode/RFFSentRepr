@@ -26,7 +26,7 @@ assert(sklearn.__version__ >= "0.18.0"), \
 
 
 def regs_range(usepytorch: bool):
-    regs = [10**t for t in range(-8, 3)] if usepytorch else \
+    regs = [10**t for t in range(-8, 4)] if usepytorch else \
         [2 ** t for t in range(-4, 6, 1)]
     regs += [0.]  # always try no regularization 0.
 
