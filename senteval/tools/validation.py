@@ -33,6 +33,7 @@ def regs_range(usepytorch: bool):
     # Old version:
     # regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
     #         [2**t for t in range(-?, ?, 1)]
+    logging.debug("Using regs: %s" % str(regs))
 
     return regs
 
