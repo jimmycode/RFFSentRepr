@@ -13,7 +13,7 @@ with io.open('./README.md', encoding='utf-8') as f:
 
 setup(
     name='SentEval',
-    version='0.1.1',
+    version='0.1.2',
     url='https://github.com/facebookresearch/SentEval',
     packages=find_packages(exclude=['examples']),
     license='Attribution-NonCommercial 4.0 International',
