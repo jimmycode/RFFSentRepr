@@ -48,7 +48,8 @@ class PyTorchClassifier(object):
             trainX, trainy = X[trainidx], y[trainidx]
             devX, devy = X[devidx], y[devidx]
 
-        device = torch.device('cpu') if self.cudaEfficient else torch.device('cuda')
+        device = torch.device(
+            'cpu') if self.cudaEfficient else torch.device('cuda')
 
         trainX = torch.from_numpy(trainX).to(device, dtype=torch.float32)
         trainy = torch.from_numpy(trainy).to(device, dtype=torch.int64)
@@ -89,7 +90,8 @@ class PyTorchClassifier(object):
             all_costs = []
             for i in range(0, len(X), self.batch_size):
                 # forward
-                idx = torch.from_numpy(permutation[i:i + self.batch_size]).long().to(X.device)
+                idx = torch.from_numpy(
+                    permutation[i:i + self.batch_size]).long().to(X.device)
 
                 Xbatch = X[idx]
                 ybatch = y[idx]
@@ -159,6 +161,7 @@ class PyTorchClassifier(object):
 MLP with Pytorch (nhid=0 --> Logistic Regression)
 """
 
+
 class MLP(PyTorchClassifier):
     def __init__(self, params, inputdim, nclasses, l2reg=0., batch_size=64,
                  seed=1111, cudaEfficient=False):
@@ -198,5 +201,16 @@ class MLP(PyTorchClassifier):
         self.loss_fn.size_average = False
 
         optim_fn, optim_params = utils.get_optimizer(self.optim)
-        self.optimizer = optim_fn(self.model.parameters(), **optim_params)
-        self.optimizer.param_groups[0]['weight_decay'] = self.l2reg
+
+        # self.optimizer = optim_fn(self.model.parameters(), **optim_params)
+        # self.optimizer.param_groups[0]['weight_decay'] = self.l2reg
+
+        # Only regularize non-bias parameters
+        bias_params = [p for n, p in self.model.named_parameters()
+                       if 'bias' in n]
+        other_params = [
+            p for n, p in self.model.named_parameters() if 'bias' not in n]
+        parameters = [{'params': other_params,
+                       'weight_decay': self.l2reg}, {'params': bias_params}]
+
+        self.optimizer = optim_fn(parameters, **optim_params)
